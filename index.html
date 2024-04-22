@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipping Label Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            .page, .page * {
+                visibility: visible;
+            }
+
+            .page {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 148mm; /* A5 width */
+                height: 210mm; /* A5 height */
+                padding: 20px;
+            }
+        }
+
+        .shipping-label {
+            border: 2px solid #4a5568;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            background-color: #f3f4f6;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .label-title {
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 600; /* font-semibold */
+            margin-bottom: 1.5rem; /* mb-6 */
+            color: #2d3748; /* text-gray-800 */
+        }
+
+        .label-info {
+            margin-bottom: 2rem; /* mb-8 */
+            font-size: 1.125rem; /* text-lg */
+            color: #4a5568; /* text-gray-700 */
+        }
+
+        .label-info p {
+            margin-bottom: 0.75rem; /* mb-3 */
+        }
+
+        .label-info p span {
+            font-weight: 600; /* font-semibold */
+            color: #2d3748; /* text-gray-900 */
+        }
+
+        .input-field {
+            border: 1px solid #d1d5db; /* border */
+            border-radius: 0.25rem; /* rounded */
+            width: 100%; /* w-full */
+            padding: 0.5rem 0.75rem; /* py-2 px-3 */
+            font-size: 1rem; /* text-base */
+            line-height: 1.5; /* leading-tight */
+            outline: none; /* focus:outline-none */
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1); /* focus:shadow-outline */
+        }
+
+        .btn-primary {
+            background-color: #3b82f6; /* bg-blue-500 */
+            color: #ffffff; /* text-white */
+            font-weight: 600; /* font-bold */
+            padding: 0.5rem 0.75rem; /* py-2 px-4 */
+            border-radius: 0.25rem; /* rounded */
+            outline: none; /* focus:outline-none */
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1); /* focus:shadow-outline */
+        }
+
+    </style>
+</head>
+
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-4">
+        <h1 class="text-4xl font-bold mb-10 text-center">Shipping Label Generator</h1>
+        <form id="shippingForm" class="max-w-md mx-auto">
+            <!-- Form Inputs -->
+            <div class="mb-6">
+                <label for="fromName" class="block text-gray-700 font-bold mb-2">Product Name:</label>
+                <input type="text" id="fromName" name="fromName" required class="input-field" />
+            </div>
+            <div class="mb-6">
+                <label for="fromAddress" class="block text-gray-700 font-bold mb-2">From:</label>
+                <input type="text" id="fromAddress" name="fromAddress" required class="input-field" />
+            </div>
+            <div class="mb-6">
+                <label for="toName" class="block text-gray-700 font-bold mb-2">To Name:</label>
+                <input type="text" id="toName" name="toName" required class="input-field" />
+            </div>
+            <div class="mb-6">
+                <label for="toAddress" class="block text-gray-700 font-bold mb-2">To Address:</label>
+                <input type="text" id="toAddress" name="toAddress" required class="input-field" />
+            </div>
+            <div class="mb-6">
+                <label for="price" class="block text-gray-700 font-bold mb-2">Price:</label>
+                <input type="number" id="price" name="price" required class="input-field" />
+            </div>
+            <div class="mb-6">
+                <label for="description" class="block text-gray-700 font-bold mb-2">Description:</label>
+                <textarea id="description" name="description" required class="input-field"></textarea>
+            </div>
+            <button type="submit" class="btn-primary mt-6 w-full">Generate Label</button>
+        </form>
+
+        <div id="generatedLabel" class="page mt-12">
+            <!-- The generated shipping label will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        // Handle form submission
+        const shippingForm = document.getElementById("shippingForm");
+        shippingForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            // Get form data and sanitize
+            const fromName = sanitizeHTML(document.getElementById("fromName").value);
+            const fromAddress = sanitizeHTML(document.getElementById("fromAddress").value);
+            const toName = sanitizeHTML(document.getElementById("toName").value);
+            const toAddress = sanitizeHTML(document.getElementById("toAddress").value);
+            const price = sanitizeHTML(document.getElementById("price").value);
+            const description = sanitizeHTML(document.getElementById("description").value);
+
+            // Generate shipping label
+            const generatedLabel = `
+                <div class="shipping-label">
+                    <h2 class="label-title">Shipping Label</h2>
+                    <div class="label-info">
+                        <p><span>From:</span> ${fromName}</p>
+                        <p><span>Address:</span> ${fromAddress}</p>
+                        <p><span>To:</span> ${toName}</p>
+                        <p><span>Address:</span> ${toAddress}</p>
+                        <p><span>Price:</span> ${price}</p>
+                        <p><span>Description:</span> ${description}</p>
+                    </div>
+                </div>
+            `;
+
+            // Display generated label
+            const generatedLabelElement = document.getElementById("generatedLabel");
+            generatedLabelElement.innerHTML = generatedLabel;
+
+            // Print generated label
+            window.print();
+        });
+
+        // Sanitize HTML input
+        function sanitizeHTML(str) {
+            const tempDiv = document.createElement("div");
+            tempDiv.textContent = str;
+            return tempDiv.innerHTML;
+        }
+    </script>
+</body>
+
+</html>
